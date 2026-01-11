@@ -9,9 +9,9 @@ declare global {
 }
 
 const customDialogStyles = css`
-:host {
-  --_hover-state-layer-opacity: 0.2;
-}
+  :host {
+    --_hover-state-layer-opacity: 0.2;
+  }
   dialog {
     border: 2px solid var(--md-sys-color-primary, #a020f0) !important;
     border-radius: 12px !important;

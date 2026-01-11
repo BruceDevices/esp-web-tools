@@ -31,7 +31,6 @@ export class EwTextButton extends TextButton {
       }
     `,
   ];
-
 }
 
 customElements.define("ew-text-button", EwTextButton);

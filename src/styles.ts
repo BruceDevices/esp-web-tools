@@ -6,7 +6,7 @@ import { css } from "lit";
 
 export const dialogStyles = css`
   :host {
-    --default-font: 'Inter', sans-serif;
+    --default-font: "Inter", sans-serif;
     --text-color: #fff;
     --danger-color: #db4437;
 
