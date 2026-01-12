@@ -21,11 +21,11 @@
     "prettier": "^3.4.2",
     "rollup": "^4.29.1",
     "serve": "^14.2.4",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "esptool-js": "file:./esptool-js-0.5.7.tgz"
   },
   "dependencies": {
     "@material/web": "^2.2.0",
-    "esptool-js": "file:./esptool-js-0.5.7.tgz",
     "improv-wifi-serial-sdk": "^2.5.0",
     "lit": "^3.2.1",
     "pako": "^2.1.0",
