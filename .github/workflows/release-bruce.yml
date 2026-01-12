@@ -5,7 +5,7 @@ name: Release
 
 on:
   release:
-    types: [created, published]
+    types: [released]
 
 jobs:
   build:
@@ -37,6 +37,7 @@ jobs:
           asset_name: bruce-esp-web-tools.tgz
           asset_content_type: application/gzip
       - name: Publish release
+        if: github.event.release.draft == true
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
