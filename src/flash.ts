@@ -30,7 +30,7 @@ export const flash = async (
   const esploader = new ESPLoader({
     transport,
     baudrate: 115200,
-    romBaudrate: 115200,
+    // romBaudrate: 115200,
     enableTracing: false,
   });
 
@@ -106,13 +106,18 @@ export const flash = async (
     });
   });
 
-  const fileArray: Array<{ data: string; address: number }> = [];
+  const fileArray: Array<{ data: Uint8Array; address: number }> = [];
   let totalSize = 0;
 
   for (let part = 0; part < filePromises.length; part++) {
     try {
       const data = await filePromises[part];
-      fileArray.push({ data, address: build.parts[part].offset });
+      // Convert binary string to Uint8Array
+      const uint8Data = new Uint8Array(data.length);
+      for (let i = 0; i < data.length; i++) {
+        uint8Data[i] = data.charCodeAt(i);
+      }
+      fileArray.push({ data: uint8Data, address: build.parts[part].offset });
       totalSize += data.length;
     } catch (err: any) {
       fireStateEvent({
