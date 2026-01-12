@@ -26,13 +26,13 @@ jobs:
       - run: npm exec -- prettier --check src
       - name: Create tarball
         run: |
-          tar -czf bruce-esp-web-tool-${{ github.event.release.tag_name }}.tgz .
+          tar -czf /tmp/bruce-esp-web-tool-${{ github.event.release.tag_name }}.tgz --exclude='.git' --exclude='node_modules' .
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: bruce-esp-web-tool-${{ github.event.release.tag_name }}.tgz
+          asset_path: /tmp/bruce-esp-web-tool-${{ github.event.release.tag_name }}.tgz
           asset_name: bruce-esp-web-tool-${{ github.event.release.tag_name }}.tgz
           asset_content_type: application/gzip
