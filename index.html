@@ -115,6 +115,14 @@
         font-style: italic;
         margin-top: 16px;
       }
+      .footer .analytics {
+        max-width: 30rem;
+        margin: 16px auto 0;
+        text-wrap: balance;
+      }
+      .footer .analytics a {
+        text-decoration: underline;
+      }
       table {
         border-spacing: 0;
       }
@@ -134,7 +142,7 @@
     </style>
     <script
       type="module"
-      src="https://unpkg.com/@justinribeiro/lite-youtube@1.4.0/lite-youtube.js"
+      src="https://unpkg.com/@justinribeiro/lite-youtube@1.9.0/lite-youtube.js"
     ></script>
     <script module>
       import(
@@ -144,6 +152,8 @@
           : "https://unpkg.com/esp-web-tools/dist/web/install-button.js?module"
       );
     </script>
+
+    <!-- include: plausible-analytics.html -->
   </head>
   <body>
     <div class="content">
@@ -179,7 +189,7 @@
       >
         <i slot="unsupported">
           The demo is not available because your browser does not support Web
-          Serial. Open this page in Google Chrome or Microsoft Edge instead<span
+          Serial. Open this page in Mozilla Firefox, Google Chrome or Microsoft Edge instead<span
             class="not-supported-i hidden"
           >
             (but not on your iOS device)</span
@@ -239,16 +249,6 @@
             />
           </div>
           <div class="name">Squeezelite-ESP32</div>
-        </a>
-        <a
-          href="https://2smart.com/docs-resources/platform-updates/platform-updates-13-07-2022"
-          target="_blank"
-          class="project"
-        >
-          <div class="logo">
-            <img src="static/logos/2smart.png" alt="2Smart logo" />
-          </div>
-          <div class="name">2Smart</div>
         </a>
         <a href="https://clockwise.page" target="_blank" class="project">
           <div class="logo">
@@ -313,6 +313,16 @@
           </div>
           <div class="name">TreadSpan</div>
         </a>
+        <a
+          href="https://opendisplay.org/firmware/install"
+          target="_blank"
+          class="project"
+        >
+          <div class="logo">
+            <img src="static/logos/opendisplay.png" alt="OpenDisplay logo" />
+          </div>
+          <div class="name">OpenDisplay</div>
+        </a>
       </div>
 
       <h2>How it works</h2>
@@ -326,7 +336,7 @@
         firmware variant from the manifest.
       </p>
       <p>
-        Web Serial is available in Google Chrome and Microsoft Edge
+        Web Serial is available in Mozilla Firefox, Google Chrome and Microsoft Edge
         browsers<span class="not-supported-i hidden">
           (but not on your iOS device)</span
         >. Android support should be possible but has not been implemented yet.
@@ -474,8 +484,8 @@ esptool --chip esp32 merge_bin \
         install. It allows specifying different builds for the different types
         of ESP devices. Current supported chip families are
         <code>ESP8266</code>, <code>ESP32</code>, <code>ESP32-C2</code>,
-        <code>ESP32-C3</code>, <code>ESP32-C5</code>, <code>ESP32-C6</code>, <code>ESP32-H2</code>,
-        <code>ESP32-S2</code> and <code>ESP32-S3</code>. The correct build will
+        <code>ESP32-C3</code>, <code>ESP32-C5</code>, <code>ESP32-C6</code>, <code>ESP32-C61</code>,
+        <code>ESP32-H2</code>, <code>ESP32-P4</code>, <code>ESP32-S2</code> and <code>ESP32-S3</code>. The correct build will
         be automatically selected based on the type of the connected ESP device.
       </p>
       <pre>
@@ -665,6 +675,20 @@ document.querySelector("esp-web-install-button").manifest = URL.createObjectURL(
         <div>
           ESP Web Tools is
           <a href="https://github.com/esphome/esp-web-tools">open source</a>.
+        </div>
+        <div class="analytics">
+          This website uses
+          <a
+            href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
+            rel="noopener"
+            >privacy-first analytics</a
+          >
+          to help us improve the site. You can view all data in our
+          <a
+            href="https://plausible.openhomefoundation.org/esphome.github.io/esp-web-tools"
+            rel="noopener"
+            >public dashboard</a
+          >.
         </div>
       </div>
     </div>

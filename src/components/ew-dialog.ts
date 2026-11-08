@@ -1,6 +1,6 @@
 import { Dialog } from "@material/web/dialog/internal/dialog.js";
-import { styles } from "@material/web/dialog/internal/dialog-styles.js";
 import { css } from "lit";
+import { styles } from "@material/web/dialog/internal/dialog-styles.cssresult.js";
 
 declare global {
   interface HTMLElementTagNameMap {

@@ -6,7 +6,18 @@ import {
   Manifest,
   FlashStateType,
 } from "./const";
-import { hardReset } from "./util/reset";
+import { sleep } from "./util/sleep";
+
+/**
+ * Perform a hard reset using esploader's chip-specific reset logic.
+ * First asserts RTS to enter reset, then calls esploader.after() which
+ * uses the chip-specific reset procedure to release.
+ */
+const hardResetDevice = async (transport: Transport, esploader: ESPLoader) => {
+  await transport.setRTS(true);
+  await sleep(100);
+  await esploader.after();
+};
 
 export const flash = async (
   onEvent: (state: FlashState) => void,
@@ -27,10 +38,17 @@ export const flash = async (
     });
 
   const transport = new Transport(port);
+
+  const portInfo = port.getInfo();
+  const isCdcUsbPort =
+    portInfo &&
+    portInfo.usbVendorId === 0x303a &&
+    portInfo.usbProductId !== undefined &&
+    [0x1001, 0x1002, 0x1003, 0x0002, 0x0003].includes(portInfo.usbProductId);
+
   const esploader = new ESPLoader({
     transport,
     baudrate: 115200,
-    romBaudrate: 115200,
     enableTracing: false,
   });
 
@@ -55,7 +73,7 @@ export const flash = async (
       details: { error: FlashError.FAILED_INITIALIZING, details: err },
     });
 
-    await hardReset(transport);
+    await hardResetDevice(transport, esploader);
     await transport.disconnect();
     return;
   }
@@ -68,7 +86,14 @@ export const flash = async (
     details: { done: true },
   });
 
-  build = manifest.builds.find((b) => b.chipFamily === chipFamily);
+  const detectedSerialType = isCdcUsbPort ? "cdc" : "uart";
+  build =
+    manifest.builds.find(
+      (b) => b.chipFamily === chipFamily && b.serialType === detectedSerialType,
+    ) ||
+    manifest.builds.find(
+      (b) => b.chipFamily === chipFamily && b.serialType === undefined,
+    );
 
   if (!build) {
     fireStateEvent({
@@ -76,7 +101,7 @@ export const flash = async (
       message: `Your ${chipFamily} board is not supported.`,
       details: { error: FlashError.NOT_SUPPORTED, details: chipFamily },
     });
-    await hardReset(transport);
+    await hardResetDevice(transport, esploader);
     await transport.disconnect();
     return;
   }
@@ -87,31 +112,37 @@ export const flash = async (
     details: { done: false },
   });
 
-  const manifestURL = new URL(manifestPath, location.toString()).toString();
+  const manifestURL =
+    manifestPath.startsWith("blob:") || manifestPath.startsWith("data:")
+      ? location.toString()
+      : new URL(manifestPath, location.toString()).toString();
   const filePromises = build.parts.map(async (part) => {
     const url = new URL(part.path, manifestURL).toString();
     const resp = await fetch(url);
     if (!resp.ok) {
       throw new Error(
-        `Downlading firmware ${part.path} failed: ${resp.status}`,
+        `Downloading firmware ${part.path} failed: ${resp.status}`,
       );
     }
 
     const reader = new FileReader();
     const blob = await resp.blob();
 
-    return new Promise<string>((resolve) => {
-      reader.addEventListener("load", () => resolve(reader.result as string));
-      reader.readAsBinaryString(blob);
+    return new Promise<ArrayBuffer>((resolve) => {
+      reader.addEventListener("load", () =>
+        resolve(reader.result as ArrayBuffer),
+      );
+      reader.readAsArrayBuffer(blob);
     });
   });
 
-  const fileArray: Array<{ data: string; address: number }> = [];
+  const fileArray: Array<{ data: Uint8Array; address: number }> = [];
   let totalSize = 0;
 
   for (let part = 0; part < filePromises.length; part++) {
     try {
-      const data = await filePromises[part];
+      const buffer = await filePromises[part];
+      const data = new Uint8Array(buffer, 0, buffer.byteLength);
       fileArray.push({ data, address: build.parts[part].offset });
       totalSize += data.length;
     } catch (err: any) {
@@ -123,7 +154,7 @@ export const flash = async (
           details: err.message,
         },
       });
-      await hardReset(transport);
+      await hardResetDevice(transport, esploader);
       await transport.disconnect();
       return;
     }
@@ -201,7 +232,7 @@ export const flash = async (
       message: err.message,
       details: { error: FlashError.WRITE_FAILED, details: err },
     });
-    await hardReset(transport);
+    await hardResetDevice(transport, esploader);
     await transport.disconnect();
     return;
   }
@@ -216,7 +247,7 @@ export const flash = async (
     },
   });
 
-  await hardReset(transport);
+  await hardResetDevice(transport, esploader);
 
   console.log("DISCONNECT");
   await transport.disconnect();
